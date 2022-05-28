@@ -1,0 +1,64 @@
+---
+- name: Setup remote UE Testers
+  hosts: remote_ue_testers
+  become: True
+
+  tasks:
+  - name: Set Hostname
+    hostname:
+      name: "{{inventory_hostname}}"
+    become: True
+    register: firstrun
+
+  - name: Updating hostname
+    command: "hostnamectl set-hostname {{inventory_hostname}}"
+    become: True
+    when: firstrun.changed
+
+  - name: Updating hosts file
+    command: "echo \"127.0.0.1 {{inventory_hostname}}\" >> /etc/hosts"
+    become: True
+    when: firstrun.changed
+
+  - name: Reboot VM due to Hostname Change
+    reboot:
+      reboot_timeout: 180
+    become: True
+    when: firstrun.changed
+
+  - name: Install Prerequisites
+    apt:
+      name: 
+      - xbase-clients
+      - android-tools-adb
+      - android-tools-fastboot
+      - ffmpeg
+      - libsdl2-2.0-0
+      - make
+      - gcc
+      - pkg-config
+      - meson 
+      - ninja-build 
+      - libavcodec-dev
+      - libavformat-dev
+      - libavutil-dev
+      - libsdl2-dev
+      - wget
+      - cmake
+      - libavdevice-dev
+      - libusb-1.0-0-dev
+      - git
+      update_cache: yes
+    become: True
+
+  - name: Git checkout
+    ansible.builtin.git:
+      repo: https://github.com/Genymobile/scrcpy/
+      dest: /usr/src/scrcpy
+    become: True
+
+  - name: Install Scrcpy
+    ansible.builtin.command: sh /usr/src/scrcpy/install_release.sh
+    become: True
+    args:
+      chdir: /usr/src/scrcpy/
