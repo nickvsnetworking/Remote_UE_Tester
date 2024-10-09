@@ -1,3 +1,7 @@
+## Link to blog article
+
+https://nickvsnetworking.com/testing-mobile-networks-with-remote-test-phones/
+
 ## Remote Android UE Tester
 
 This Ansible Playbook builds the enviroment to run remote Android devices for the purposes of testing cellular networks remoteley.
